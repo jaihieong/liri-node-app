@@ -5,10 +5,30 @@ var axios = require("axios");
 var keys = require("./keys.js");
 var moment = require('moment');
 var fs = require("fs");
+var inquirer = require("inquirer");
 
 var clInputs = process.argv;
 var command = clInputs[2];
 var searchInput = clInputs[3];
+
+function startSearch(){
+    // Later I'll update it so the command line provides operation choices to user by prompting
+    inquirer.prompt([
+
+        {
+          type: "input",
+          name: "",
+          message: "What would you like to search for?"
+        },
+      
+        {
+          type: "list",
+          name: "doingWhat",
+          message: "What are you doing in my house??",
+          choices: ["I made you cookies!", "No lie dude. I'm here to rob you.", "Uh. This is my house... Who are YOU???"]
+        },
+    ]);
+};
 
 searchAPI(command);
 
@@ -41,16 +61,22 @@ function searchConcert(){
 
     // Then run a request with axios to the OMDB API with the movie specified
     axios.get("https://rest.bandsintown.com/artists/" + searchInput + "/events?app_id=codingbootcamp").then(function(response) {
-        // console.log(response.data[0]);
-        for (var i = 0; i < response.data.length; i++){
-            console.log("\nVenue # " + i + " ********************************************");
-            // * Name of the venue
-            console.log("\tName of the Venue: " + response.data[i].venue.name);
-            // * Venue location
-            console.log("\tVenue Location: " + response.data[i].venue.city);
-            // * Date of the Event (use moment to format this as "MM/DD/YYYY")
-            console.log("\tDate of the Event: " + moment(response.data[i].datetime).format("MM/DD/YYYY"));
-            console.log("\n//////////////////////////////////////////////////////////");
+        if (searchInput === undefined){
+            console.log("Please enter the name of artist or band");
+        } else {
+            // console.log(response.data[0]);
+            var artist = searchInput.toUpperCase();
+            console.log("\r\n////////////// Concert Information for " + artist);
+            for (var i = 0; i < response.data.length; i++){
+                console.log("\nVenue # " + i + " ********************************************");
+                // * Name of the venue
+                console.log("\tName of the Venue: " + response.data[i].venue.name);
+                // * Venue location
+                console.log("\tVenue Location: " + response.data[i].venue.city);
+                // * Date of the Event (use moment to format this as "MM/DD/YYYY")
+                console.log("\tDate of the Event: " + moment(response.data[i].datetime).format("MM/DD/YYYY"));
+                console.log("\n//////////////////////////////////////////////////////////");
+            }
         }
     })
     .catch(function(error) {
